@@ -1,13 +1,12 @@
-import os
+
 from selenium import webdriver
 import requests
 import time
-from selenium.webdriver.common.by import By
 import datetime as dt
+import const as c
+from datatypes import Tandz
 
-option = webdriver.ChromeOptions()
-option.add_argument('headless')
-option.add_argument("--log-level=3")
+
 
 def download_soundtrack(url, save_path):
     try:
@@ -26,68 +25,13 @@ def download_soundtrack(url, save_path):
         print("Error occurred:", str(e))
 
 
-class Tandz:
 
-    id: str
-    name: str
-    url: str
-    duration: int
-
-    def __init__(self, id, name, duration):
-        self.id = id
-        self.name = name
-        pref = "https://d2jti1fb5f3g5g.cloudfront.net/46434_"
-        # mid = "64b526ea283232f7f876a946"
-        suf = ".mp3"
-        self.url = pref + id + suf
-        self.date = ""
-        self.duration = duration
-
-    def download(self):
-        try:
-        # Send a GET request to the URL
-            response = requests.get(self.url)
-            # get current directory
-            save_path = os.getcwd()
-            # append the Downloads folder. make sure it compatible with linux and windows
-            save_path = save_path + "\\Downloads"
-            # save_path = save_path + "/Downloads"
-            # check if the folder exists
-            if not os.path.exists(save_path):
-                # if not create it
-                os.makedirs(save_path)
-
-
-
-            if response.status_code == 200:
-                # Save the data to the specified path
-                # save it with the name of the file, if it doesn't exist create it
-                save_path = save_path + "\\" + self.name + ".mp3" 
-                # save_path = save_path + "\\" + "meir" + ".mp3" 
-                with open(save_path, "wb+") as f:
-                    f.write(response.content)  
-
-                # with open(save_path, "wb+") as f:
-                #     f.write(response.content)
-                # print("Soundtrack downloaded successfully.")
-            else:
-                print(f"Failed to download the soundtrack. Status code: {response.status_code}")
-
-        except requests.exceptions.RequestException as e:
-            print("Error occurred:", str(e))
-        except OSError as e:
-            print("Error occurred:", str(e))
-        except Exception as e:
-            print("Error occurred:", str(e))
-    
-    def __eq__(self, __o: object) -> bool:
-        return self.id == __o.id
-
-    def __hash__(self) -> int:
-        return hash(self.id)
 
 def download_soundtrack_with_selenium(url, start_time=None):
     # Set up the Selenium webdriver (here we use Chrome)
+    option = webdriver.ChromeOptions()
+    option.add_argument('headless')
+    option.add_argument("--log-level=3")
     driver = webdriver.Chrome(options=option)
 
     # Navigate to the webpage containing the soundtrack
@@ -111,16 +55,10 @@ def download_soundtrack_with_selenium(url, start_time=None):
             t += 1
             print(f"found {last_length} tracks until now...", end="\r")
 
-        
-
         # first scroll down
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         # wait for the page to load
         time.sleep(3)
-
-
-
-
         last_length = len(pc_list)
 
         
@@ -178,6 +116,6 @@ if __name__ == "__main__":
     # mesure the time the program runs in minutes
     # print((dt.datetime.now() + dt.timedelta(minutes=10)).strftime("%H:%M:%S"))
     start_time = time.time()
-    download_soundtrack_with_selenium("https://102fm.co.il/tandz", start_time)
+    download_soundtrack_with_selenium(c.tandz_main_url, start_time)
     
     print("--- %s seconds ---" % (round(time.time() - start_time)))

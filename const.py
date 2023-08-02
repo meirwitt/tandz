@@ -1,0 +1,1 @@
+tandz_main_url = "https://102fm.co.il/tandz"
